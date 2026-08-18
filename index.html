@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>iMessage - IMSG</title>
 
-  <!-- PWA Manifest External Link (Obrigatório para PWA nativo no Chrome/Android) -->
+  <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
 
-  <!-- Meta tags iOS / Android -->
+  <!-- Meta tags PWA / iOS / Android -->
   <meta name="theme-color" content="#007aff">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -68,7 +68,7 @@
       display: none !important;
     }
 
-    /* Banner PWA de Instalação */
+    /* Banner PWA */
     #install-banner {
       background: #007aff;
       color: #ffffff;
@@ -350,7 +350,7 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs e Lógica do App -->
+  <!-- Firebase SDKs originais (intactos) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -458,7 +458,7 @@
       return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
     }
 
-    // REGISTRO DO SERVICE WORKER E INSTALAÇÃO PWA
+    // REGISTRO DE SERVICE WORKER E INSTALAÇÃO DO PWA
     let deferredPrompt;
     const installBanner = document.getElementById('install-banner');
     const installBtn = document.getElementById('install-btn');
@@ -483,8 +483,8 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SW Registrado:', reg.scope))
-          .catch(err => console.error('Erro ao registrar SW:', err));
+          .then(reg => console.log('SW ativo no escopo:', reg.scope))
+          .catch(err => console.error('Erro no SW:', err));
       });
     }
   </script>

@@ -1,1 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IMSG - Web IRC</title>
 
+  <!-- Configurações para PWA (Instalação como APP/APK) -->
+  <meta name="theme-color" content="#121212">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="IMSG">
+
+  <!-- Manifest Dinâmico via Data URL -->
+  <link rel="manifest" href='data:application/manifest+json,{
+    "name": "IMSG - Web IRC Chat",
+    "short_name": "IMSG",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#121212",
+    "icons": [
+      {
+        "src": "https://cdn-icons-png.flaticon.com/512/1041/1041916.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "https://cdn-icons-png.flaticon.com/512/1041/1041916.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }'>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background-color: #121212;
+      color: #00ff66;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 600px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #00ff66;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: auto;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #chat-screen {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #1e1e1e;
+      border: 1px solid #00ff66;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #chat-header {
+      padding: 12px;
+      background: #2a2a2a;
+      border-bottom: 1px solid #00ff66;
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+    }
+
+    #messages-log {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .msg {
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .msg .time {
+      color: #888;
+      font-size: 0.85em;
+    }
+
+    .msg .author {
+      color: #00ccff;
+      font-weight: bold;
+    }
+
+    .msg.system {
+      color: #ffaa00;
+      font-style: italic;
+    }
+
+    #message-form {
+      display: flex;
+      border-top: 1px solid #00ff66;
+      background: #121212;
+    }
+
+    input {
+      background: #121212;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 12px;
+      border-radius: 4px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border-color: #00ff66;
+    }
+
+    #message-form input {
+      flex: 1;
+      border: none;
+      border-radius: 0;
+    }
+
+    button {
+      background: #00ff66;
+      color: #000;
+      border: none;
+      padding: 12px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #00cc52;
+    }
+
+    /* Botão de instalação no topo */
+    #install-banner {
+      background: #2a2a2a;
+      border: 1px solid #00ff66;
+      color: #00ff66;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    #install-banner button {
+      padding: 6px 12px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    <!-- Banner de Instalação (Exibido apenas quando disponível) -->
+    <div id="install-banner" class="hidden">
+      <span>Instalar o IMSG como App?</span>
+      <button id="install-btn">Instalar</button>
+    </div>
+
+    <!-- Tela de Login -->
+    <div id="login-screen" class="card">
+      <h2 style="text-align: center;">IMSG IRC</h2>
+      <input type="text" id="username-input" placeholder="Digite seu apelido (Nick)..." maxlength="15">
+      <button id="join-btn">Entrar na Sala</button>
+    </div>
+
+    <!-- Tela do Chat -->
+    <div id="chat-screen" class="hidden">
+      <div id="chat-header">
+        <span>#geral</span>
+        <span id="user-display"></span>
+      </div>
+      <div id="messages-log"></div>
+      <form id="message-form">
+        <input type="text" id="message-input" placeholder="Digite uma mensagem..." autocomplete="off">
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs e Lógica do App -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGFNnKz5_SvfhZb7_mgLTahZ4-yKq3nKs",
+      authDomain: "imsg-570c2.firebaseapp.com",
+      databaseURL: "https://imsg-570c2-default-rtdb.firebaseio.com",
+      projectId: "imsg-570c2",
+      storageBucket: "imsg-570c2.firebasestorage.app",
+      messagingSenderId: "469002794631",
+      appId: "1:469002794631:web:780d2a80b1dc3105d6aa22",
+      measurementId: "G-NS1WD6Y296"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let username = "";
+
+    const loginScreen = document.getElementById("login-screen");
+    const chatScreen = document.getElementById("chat-screen");
+    const usernameInput = document.getElementById("username-input");
+    const joinBtn = document.getElementById("join-btn");
+    const userDisplay = document.getElementById("user-display");
+    const messagesLog = document.getElementById("messages-log");
+    const messageForm = document.getElementById("message-form");
+    const messageInput = document.getElementById("message-input");
+
+    joinBtn.addEventListener("click", joinChat);
+    usernameInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") joinChat();
+    });
+
+    function joinChat() {
+      const val = usernameInput.value.trim();
+      if (val) {
+        username = val;
+        userDisplay.textContent = `<${username}>`;
+        loginScreen.classList.add("hidden");
+        chatScreen.classList.remove("hidden");
+        
+        sendMessage("entrou na sala.", true);
+        listenForMessages();
+      }
+    }
+
+    messageForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if (text) {
+        sendMessage(text, false);
+        messageInput.value = "";
+      }
+    });
+
+    function sendMessage(text, isSystem = false) {
+      const messagesRef = ref(db, "chat_geral");
+      push(messagesRef, {
+        user: username,
+        text: text,
+        isSystem: isSystem,
+        timestamp: serverTimestamp()
+      });
+    }
+
+    function listenForMessages() {
+      const messagesRef = ref(db, "chat_geral");
+      
+      onChildAdded(messagesRef, (snapshot) => {
+        const data = snapshot.val();
+        renderMessage(data);
+      });
+    }
+
+    function renderMessage(data) {
+      const div = document.createElement("div");
+      div.classList.add("msg");
+      
+      const date = data.timestamp ? new Date(data.timestamp) : new Date();
+      const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (data.isSystem) {
+        div.classList.add("system");
+        div.innerHTML = `<span class="time">[${timeStr}]</span> * ${escapeHtml(data.user)} ${escapeHtml(data.text)}`;
+      } else {
+        div.innerHTML = `<span class="time">[${timeStr}]</span> <span class="author">&lt;${escapeHtml(data.user)}&gt;</span> ${escapeHtml(data.text)}`;
+      }
+
+      messagesLog.appendChild(div);
+      messagesLog.scrollTop = messagesLog.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+    }
+
+    // ==========================================
+    // REGISTRO DE SERVICE WORKER & SUPORTE PWA
+    // ==========================================
+    let deferredPrompt;
+    const installBanner = document.getElementById('install-banner');
+    const installBtn = document.getElementById('install-btn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.classList.remove('hidden');
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installBanner.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+        self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+        self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+      `;
+      const blob = new Blob([swCode], { type: 'text/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+      
+      navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Erro:', err));
+    }
+  </script>
+</body>
+</html>

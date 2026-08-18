@@ -5,37 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>iMessage - IMSG</title>
 
-  <!-- Configurações para PWA (Instalação como APP/APK) -->
-  <meta name="theme-color" content="#f2f2f7">
+  <!-- PWA Manifest External Link (Obrigatório para PWA nativo no Chrome/Android) -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- Meta tags iOS / Android -->
+  <meta name="theme-color" content="#007aff">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="IMSG">
-
-  <!-- Manifest Dinâmico via Data URL -->
-  <link rel="manifest" href='data:application/manifest+json,{
-    "name": "IMSG - Messages",
-    "short_name": "IMSG",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#007aff",
-    "icons": [
-      {
-        "src": "https://cdn-icons-png.flaticon.com/512/1041/1041916.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      },
-      {
-        "src": "https://cdn-icons-png.flaticon.com/512/1041/1041916.png",
-        "sizes": "512x512",
-        "type": "image/png"
-      }
-    ]
-  }'>
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1041/1041916.png">
 
   <style>
-    /* Estilo do iOS / System Fonts */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -69,7 +50,6 @@
       overflow: hidden;
     }
 
-    /* Adaptação Responsiva para Desktop */
     @media (min-width: 768px) {
       body {
         padding: 20px;
@@ -88,33 +68,32 @@
       display: none !important;
     }
 
-    /* Banner de Instalação (Estilo Notificação iOS) */
+    /* Banner PWA de Instalação */
     #install-banner {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid #e5e5ea;
-      padding: 10px 16px;
+      background: #007aff;
+      color: #ffffff;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13px;
-      color: #1c1c1e;
-      z-index: 100;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 999;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
 
     #install-banner button {
-      background: #007aff;
-      color: #ffffff;
+      background: #ffffff;
+      color: #007aff;
       border: none;
-      padding: 6px 14px;
-      border-radius: 14px;
-      font-size: 12px;
-      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
     }
 
-    /* Tela de Login (Modal iOS) */
+    /* Tela de Login */
     #login-screen {
       flex: 1;
       display: flex;
@@ -179,14 +158,9 @@
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.2s;
     }
 
-    .login-card button:active {
-      opacity: 0.7;
-    }
-
-    /* Tela do Chat */
+    /* Chat Screen */
     #chat-screen {
       display: flex;
       flex-direction: column;
@@ -194,7 +168,6 @@
       background: #ffffff;
     }
 
-    /* Header Estilo Navigation Bar iOS */
     #chat-header {
       padding: 12px 16px;
       background: rgba(249, 249, 249, 0.94);
@@ -222,7 +195,6 @@
       margin-top: 2px;
     }
 
-    /* Área de Mensagens */
     #messages-log {
       flex: 1;
       padding: 16px;
@@ -233,7 +205,6 @@
       background: #ffffff;
     }
 
-    /* Estilo das Bolhas (iOS Message Bubbles) */
     .msg-wrapper {
       display: flex;
       flex-direction: column;
@@ -263,17 +234,14 @@
       font-size: 16px;
       line-height: 1.35;
       word-break: break-word;
-      position: relative;
     }
 
-    /* Balão enviado pelo usuário (Azul iOS) */
     .msg-wrapper.me .bubble {
       background: #007aff;
       color: #ffffff;
       border-bottom-right-radius: 4px;
     }
 
-    /* Balão recebido (Cinza iOS) */
     .msg-wrapper.other .bubble {
       background: #e9e9eb;
       color: #000000;
@@ -287,7 +255,6 @@
       padding: 0 4px;
     }
 
-    /* Mensagem do Sistema */
     .msg-system {
       align-self: center;
       font-size: 12px;
@@ -296,7 +263,6 @@
       font-weight: 500;
     }
 
-    /* Campo de Entrada (Input Bar iOS) */
     #message-form {
       padding: 8px 12px;
       background: rgba(249, 249, 249, 0.94);
@@ -334,12 +300,6 @@
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      transition: transform 0.1s, opacity 0.2s;
-    }
-
-    #message-form button:active {
-      transform: scale(0.92);
-      opacity: 0.8;
     }
 
     #message-form button svg {
@@ -354,7 +314,7 @@
   <div id="app">
     <!-- Banner de Instalação PWA -->
     <div id="install-banner" class="hidden">
-      <span>Instalar o IMSG no seu dispositivo?</span>
+      <span>Instalar App IMSG?</span>
       <button id="install-btn">Instalar</button>
     </div>
 
@@ -498,7 +458,7 @@
       return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
     }
 
-    // REGISTRO DE SERVICE WORKER & PWA
+    // REGISTRO DO SERVICE WORKER E INSTALAÇÃO PWA
     let deferredPrompt;
     const installBanner = document.getElementById('install-banner');
     const installBtn = document.getElementById('install-btn');
@@ -521,15 +481,11 @@
     });
 
     if ('serviceWorker' in navigator) {
-      const swCode = `
-        self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-        self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-        self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-      `;
-      const blob = new Blob([swCode], { type: 'text/javascript' });
-      const swUrl = URL.createObjectURL(blob);
-      
-      navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Erro:', err));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('SW Registrado:', reg.scope))
+          .catch(err => console.error('Erro ao registrar SW:', err));
+      });
     }
   </script>
 </body>

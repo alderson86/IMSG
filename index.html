@@ -13,7 +13,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="IMSG">
+  <meta name="apple-mobile-web-app-title" content="iMessage">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1041/1041916.png">
 
   <style>
@@ -25,9 +25,37 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    :root {
+      --bg-body: #f2f2f7;
+      --bg-app: #ffffff;
+      --bg-header: rgba(249, 249, 249, 0.94);
+      --bg-input-card: #e9e9eb;
+      --bg-bubble-other: #e9e9eb;
+      --bg-bubble-me: #007aff;
+      --text-main: #000000;
+      --text-muted: #8e8e93;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --input-border: #d1d1d6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-body: #000000;
+        --bg-app: #000000;
+        --bg-header: rgba(28, 28, 30, 0.88);
+        --bg-input-card: #1c1c1e;
+        --bg-bubble-other: #2c2c2e;
+        --bg-bubble-me: #0a84ff;
+        --text-main: #ffffff;
+        --text-muted: #8e8e93;
+        --border-color: rgba(255, 255, 255, 0.15);
+        --input-border: #3a3a3c;
+      }
+    }
+
     body {
-      background-color: #f2f2f7;
-      color: #000000;
+      background-color: var(--bg-body);
+      color: var(--text-main);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -45,7 +73,7 @@
       max-width: 100%;
       display: flex;
       flex-direction: column;
-      background: #ffffff;
+      background: var(--bg-app);
       position: relative;
       overflow: hidden;
     }
@@ -55,12 +83,15 @@
         padding: 20px;
         background-color: #e5e5ea;
       }
+      @media (prefers-color-scheme: dark) {
+        body { background-color: #000000; }
+      }
       #app {
-        max-width: 900px;
+        max-width: 850px;
         height: 85vh;
         border-radius: 18px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--border-color);
       }
     }
 
@@ -93,7 +124,7 @@
       cursor: pointer;
     }
 
-    /* Tela de Login */
+    /* Tela de Login estilo iOS */
     #login-screen {
       flex: 1;
       display: flex;
@@ -101,7 +132,7 @@
       justify-content: center;
       align-items: center;
       padding: 24px;
-      background: #ffffff;
+      background: var(--bg-app);
     }
 
     .login-card {
@@ -135,17 +166,18 @@
       font-size: 24px;
       font-weight: 700;
       letter-spacing: -0.5px;
+      color: var(--text-main);
     }
 
     .login-card input {
       width: 100%;
-      background: #e9e9eb;
+      background: var(--bg-input-card);
       border: none;
       padding: 14px 16px;
       border-radius: 12px;
       font-size: 16px;
       outline: none;
-      color: #000;
+      color: var(--text-main);
     }
 
     .login-card button {
@@ -160,49 +192,70 @@
       cursor: pointer;
     }
 
-    /* Chat Screen */
+    /* Cabeçalho do Chat estilo iOS */
     #chat-screen {
       display: flex;
       flex-direction: column;
       height: 100%;
-      background: #ffffff;
+      background: var(--bg-app);
     }
 
     #chat-header {
-      padding: 12px 16px;
-      background: rgba(249, 249, 249, 0.94);
+      padding: 10px 16px;
+      background: var(--bg-header);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid var(--border-color);
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 10;
     }
 
-    #chat-header .channel-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #000000;
+    .header-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    #chat-header .user-info {
+    .channel-select {
+      background: transparent;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+      text-align-last: center;
+    }
+
+    .user-info {
       font-size: 11px;
-      color: #8e8e93;
+      color: var(--text-muted);
       margin-top: 2px;
     }
 
+    .logout-btn {
+      background: none;
+      border: none;
+      color: #007aff;
+      font-size: 15px;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    /* Área de Mensagens */
     #messages-log {
       flex: 1;
       padding: 16px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      background: #ffffff;
+      gap: 8px;
+      background: var(--bg-app);
     }
 
     .msg-wrapper {
@@ -223,8 +276,8 @@
 
     .msg-author {
       font-size: 11px;
-      color: #8e8e93;
-      margin-bottom: 3px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
       margin-left: 12px;
     }
 
@@ -237,38 +290,64 @@
     }
 
     .msg-wrapper.me .bubble {
-      background: #007aff;
+      background: var(--bg-bubble-me);
       color: #ffffff;
       border-bottom-right-radius: 4px;
     }
 
     .msg-wrapper.other .bubble {
-      background: #e9e9eb;
-      color: #000000;
+      background: var(--bg-bubble-other);
+      color: var(--text-main);
       border-bottom-left-radius: 4px;
     }
 
     .msg-time {
       font-size: 10px;
-      margin-top: 4px;
-      color: #8e8e93;
+      margin-top: 3px;
+      color: var(--text-muted);
       padding: 0 4px;
     }
 
     .msg-system {
       align-self: center;
-      font-size: 12px;
-      color: #8e8e93;
+      font-size: 11px;
+      color: var(--text-muted);
       margin: 8px 0;
       font-weight: 500;
     }
 
+    /* Mídia na Conversa */
+    .chat-img {
+      max-width: 100%;
+      border-radius: 14px;
+      margin-top: 2px;
+      display: block;
+      cursor: pointer;
+    }
+
+    .chat-audio {
+      max-width: 210px;
+      height: 36px;
+      margin-top: 2px;
+    }
+
+    .typing-indicator {
+      font-size: 12px;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-left: 16px;
+      margin-bottom: 4px;
+      height: 16px;
+    }
+
+    /* Barra de Entrada estilo iMessage */
     #message-form {
       padding: 8px 12px;
-      background: rgba(249, 249, 249, 0.94);
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      background: var(--bg-header);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      border-top: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -276,25 +355,54 @@
 
     #message-input {
       flex: 1;
-      background: #ffffff;
-      border: 1px solid #d1d1d6;
+      background: var(--bg-app);
+      border: 1px solid var(--input-border);
       padding: 8px 14px;
       border-radius: 20px;
       font-size: 16px;
       outline: none;
-      color: #000;
+      color: var(--text-main);
     }
 
     #message-input:focus {
       border-color: #007aff;
     }
 
-    #message-form button {
+    .btn-icon {
+      background: none;
+      border: none;
+      color: #007aff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+    }
+
+    .btn-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #007aff;
+    }
+
+    .btn-icon.recording svg {
+      fill: #ff3b30;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    #send-btn {
       background: #007aff;
       color: #ffffff;
       border: none;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
@@ -302,10 +410,14 @@
       cursor: pointer;
     }
 
-    #message-form button svg {
-      width: 18px;
-      height: 18px;
+    #send-btn svg {
+      width: 16px;
+      height: 16px;
       fill: #ffffff;
+    }
+
+    #file-input {
+      display: none;
     }
   </style>
 </head>
@@ -326,7 +438,7 @@
             <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
           </svg>
         </div>
-        <h2>IMSG Messages</h2>
+        <h2>iMessage</h2>
         <input type="text" id="username-input" placeholder="Seu Nome / Apelido" maxlength="15" autocomplete="off">
         <button id="join-btn">Entrar</button>
       </div>
@@ -335,13 +447,39 @@
     <!-- Tela do Chat -->
     <div id="chat-screen" class="hidden">
       <div id="chat-header">
-        <span class="channel-title">#geral</span>
-        <span class="user-info" id="user-display"></span>
+        <button id="logout-btn" class="logout-btn">Sair</button>
+        <div class="header-center">
+          <select id="channel-select" class="channel-select">
+            <option value="geral">#geral</option>
+            <option value="jogos">#jogos</option>
+            <option value="musica">#musica</option>
+            <option value="random">#random</option>
+          </select>
+          <span class="user-info" id="user-display"></span>
+        </div>
+        <div style="width: 40px;"></div>
       </div>
       <div id="messages-log"></div>
+      <div id="typing-indicator" class="typing-indicator hidden"></div>
       <form id="message-form">
+        <!-- Input para envio de imagem -->
+        <input type="file" id="file-input" accept="image/*">
+        
+        <button type="button" id="img-btn" class="btn-icon" title="Enviar Imagem">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+          </svg>
+        </button>
+
+        <button type="button" id="audio-btn" class="btn-icon" title="Gravar Áudio">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+          </svg>
+        </button>
+
         <input type="text" id="message-input" placeholder="iMessage" autocomplete="off">
-        <button type="submit">
+        
+        <button type="submit" id="send-btn">
           <svg viewBox="0 0 24 24">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
           </svg>
@@ -350,10 +488,20 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs originais (intactos) -->
+  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { 
+      getDatabase, 
+      ref, 
+      push, 
+      onChildAdded, 
+      off, 
+      serverTimestamp, 
+      set, 
+      onValue, 
+      onDisconnect 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBGFNnKz5_SvfhZb7_mgLTahZ4-yKq3nKs",
@@ -369,8 +517,12 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let username = "";
+    let username = localStorage.getItem("imsg_username") || "";
+    let currentChannel = "geral";
+    let activeMessageRef = null;
+    let typingTimeout = null;
 
+    // Elementos do DOM
     const loginScreen = document.getElementById("login-screen");
     const chatScreen = document.getElementById("chat-screen");
     const usernameInput = document.getElementById("username-input");
@@ -379,51 +531,201 @@
     const messagesLog = document.getElementById("messages-log");
     const messageForm = document.getElementById("message-form");
     const messageInput = document.getElementById("message-input");
+    const channelSelect = document.getElementById("channel-select");
+    const logoutBtn = document.getElementById("logout-btn");
+    const typingIndicator = document.getElementById("typing-indicator");
+    const fileInput = document.getElementById("file-input");
+    const imgBtn = document.getElementById("img-btn");
+    const audioBtn = document.getElementById("audio-btn");
+
+    // Controle de Gravação de Áudio
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    // Efeito Sonoro de Notificação
+    function playPopSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+      } catch (e) {}
+    }
+
+    if (username) {
+      usernameInput.value = username;
+      initChat();
+    }
 
     joinBtn.addEventListener("click", joinChat);
     usernameInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") joinChat();
     });
 
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("imsg_username");
+      location.reload();
+    });
+
     function joinChat() {
       const val = usernameInput.value.trim();
       if (val) {
         username = val;
-        userDisplay.textContent = `Conectado como ${username}`;
-        loginScreen.classList.add("hidden");
-        chatScreen.classList.remove("hidden");
-        
-        sendMessage("entrou na conversa.", true);
-        listenForMessages();
+        localStorage.setItem("imsg_username", username);
+        initChat();
       }
     }
 
+    function initChat() {
+      userDisplay.textContent = `Conectado como ${username}`;
+      loginScreen.classList.add("hidden");
+      chatScreen.classList.remove("hidden");
+      setupPresence();
+      switchChannel(channelSelect.value);
+    }
+
+    channelSelect.addEventListener("change", (e) => {
+      switchChannel(e.target.value);
+    });
+
+    function switchChannel(channelName) {
+      if (activeMessageRef) off(activeMessageRef);
+      currentChannel = channelName;
+      messagesLog.innerHTML = "";
+      sendMessage("entrou na conversa.", true);
+      listenForMessages();
+      listenForTyping();
+    }
+
+    // Status On-line
+    function setupPresence() {
+      const connectedRef = ref(db, ".info/connected");
+      const myPresenceRef = ref(db, `presence/${username}`);
+      onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+          onDisconnect(myPresenceRef).remove();
+          set(myPresenceRef, { status: "online", lastSeen: serverTimestamp() });
+        }
+      });
+    }
+
+    // Indicador "Digitando..."
+    messageInput.addEventListener("input", () => {
+      if (!username) return;
+      const typingRef = ref(db, `typing/${currentChannel}/${username}`);
+      set(typingRef, true);
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => { set(typingRef, false); }, 2000);
+    });
+
+    function listenForTyping() {
+      const typingRef = ref(db, `typing/${currentChannel}`);
+      onValue(typingRef, (snapshot) => {
+        const data = snapshot.val() || {};
+        const typingUsers = Object.keys(data).filter(u => u !== username && data[u] === true);
+        if (typingUsers.length > 0) {
+          typingIndicator.textContent = `${typingUsers.join(", ")} está digitando...`;
+          typingIndicator.classList.remove("hidden");
+        } else {
+          typingIndicator.classList.add("hidden");
+        }
+      });
+    }
+
+    // Enviar Texto
     messageForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const text = messageInput.value.trim();
       if (text) {
-        sendMessage(text, false);
+        sendMessage(text, false, "text");
         messageInput.value = "";
+        set(ref(db, `typing/${currentChannel}/${username}`), false);
       }
     });
 
-    function sendMessage(text, isSystem = false) {
-      const messagesRef = ref(db, "chat_geral");
+    // Enviar Imagem (Base64)
+    imgBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          alert("A imagem não pode exceder 2MB.");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          sendMessage(evt.target.result, false, "image");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Gravação e Envio de Áudio
+    audioBtn.addEventListener("click", async () => {
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              sendMessage(reader.result, false, "audio");
+            };
+            reader.readAsDataURL(audioBlob);
+            stream.getTracks().forEach(t => t.stop());
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+          audioBtn.classList.add("recording");
+        } catch (err) {
+          alert("Não foi possível acessar o microfone.");
+        }
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        audioBtn.classList.remove("recording");
+      }
+    });
+
+    function sendMessage(content, isSystem = false, type = "text") {
+      const messagesRef = ref(db, `chat_${currentChannel}`);
       push(messagesRef, {
         user: username,
-        text: text,
+        text: content,
+        type: type,
         isSystem: isSystem,
         timestamp: serverTimestamp()
       });
     }
 
     function listenForMessages() {
-      const messagesRef = ref(db, "chat_geral");
-      
-      onChildAdded(messagesRef, (snapshot) => {
+      activeMessageRef = ref(db, `chat_${currentChannel}`);
+      let isFirstLoad = true;
+
+      onChildAdded(activeMessageRef, (snapshot) => {
         const data = snapshot.val();
         renderMessage(data);
+        if (!isFirstLoad && !data.isSystem && data.user !== username) {
+          playPopSound();
+        }
       });
+
+      setTimeout(() => { isFirstLoad = false; }, 1000);
     }
 
     function renderMessage(data) {
@@ -441,10 +743,21 @@
         wrapper.classList.add("msg-wrapper", isMe ? "me" : "other");
 
         let authorHtml = !isMe ? `<div class="msg-author">${escapeHtml(data.user)}</div>` : '';
+        let bodyContent = "";
+
+        const msgType = data.type || "text";
+
+        if (msgType === "image") {
+          bodyContent = `<img src="${data.text}" class="chat-img" onclick="window.open(this.src)" />`;
+        } else if (msgType === "audio") {
+          bodyContent = `<audio controls src="${data.text}" class="chat-audio"></audio>`;
+        } else {
+          bodyContent = escapeHtml(data.text);
+        }
 
         wrapper.innerHTML = `
           ${authorHtml}
-          <div class="bubble">${escapeHtml(data.text)}</div>
+          <div class="bubble">${bodyContent}</div>
           <div class="msg-time">${timeStr}</div>
         `;
 
@@ -458,7 +771,7 @@
       return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
     }
 
-    // REGISTRO DE SERVICE WORKER E INSTALAÇÃO DO PWA
+    // Registro do PWA
     let deferredPrompt;
     const installBanner = document.getElementById('install-banner');
     const installBtn = document.getElementById('install-btn');
@@ -473,18 +786,14 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          installBanner.classList.add('hidden');
-        }
+        if (outcome === 'accepted') installBanner.classList.add('hidden');
         deferredPrompt = null;
       }
     });
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SW ativo no escopo:', reg.scope))
-          .catch(err => console.error('Erro no SW:', err));
+        navigator.serviceWorker.register('./sw.js').catch(err => console.error(err));
       });
     }
   </script>

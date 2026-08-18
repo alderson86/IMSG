@@ -214,6 +214,11 @@
       z-index: 10;
     }
 
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
     .header-center {
       display: flex;
       flex-direction: column;
@@ -419,6 +424,101 @@
     #file-input {
       display: none;
     }
+
+    /* Modal / Interface de Chamada WebRTC FaceTime style */
+    #call-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .call-status {
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .call-status h3 {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .call-status p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 4px;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      height: 60vh;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #1c1c1e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #remote-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #local-video {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      width: 100px;
+      height: 140px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .call-controls {
+      display: flex;
+      gap: 24px;
+    }
+
+    .call-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .call-btn.end {
+      background: #ff3b30;
+    }
+
+    .call-btn.accept {
+      background: #34c759;
+    }
+
+    .call-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -457,34 +557,59 @@
           </select>
           <span class="user-info" id="user-display"></span>
         </div>
-        <div style="width: 40px;"></div>
+        <!-- Botões de Chamadas FaceTime IP/IP -->
+        <div class="header-actions">
+          <button id="btn-start-audio-call" class="btn-icon" title="Chamada de Áudio">
+            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          </button>
+          <button id="btn-start-video-call" class="btn-icon" title="Chamada de Vídeo">
+            <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+          </button>
+        </div>
       </div>
+
       <div id="messages-log"></div>
       <div id="typing-indicator" class="typing-indicator hidden"></div>
+
       <form id="message-form">
-        <!-- Input para envio de imagem -->
         <input type="file" id="file-input" accept="image/*">
         
         <button type="button" id="img-btn" class="btn-icon" title="Enviar Imagem">
-          <svg viewBox="0 0 24 24">
-            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
         </button>
 
         <button type="button" id="audio-btn" class="btn-icon" title="Gravar Áudio">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
         </button>
 
         <input type="text" id="message-input" placeholder="iMessage" autocomplete="off">
         
         <button type="submit" id="send-btn">
-          <svg viewBox="0 0 24 24">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </form>
+    </div>
+
+    <!-- Modal de Chamada WebRTC (FaceTime) -->
+    <div id="call-modal" class="hidden">
+      <div class="call-status">
+        <h3 id="call-peer-name">Chamada FaceTime</h3>
+        <p id="call-state-text">Conectando...</p>
+      </div>
+      
+      <div class="video-container">
+        <video id="remote-video" autoplay playsinline></video>
+        <video id="local-video" autoplay playsinline muted></video>
+      </div>
+
+      <div class="call-controls">
+        <button id="btn-accept-call" class="call-btn accept hidden" title="Atender">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </button>
+        <button id="btn-end-call" class="call-btn end" title="Encerrar">
+          <svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.73-1.68-1.36-2.66-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -522,7 +647,7 @@
     let activeMessageRef = null;
     let typingTimeout = null;
 
-    // Elementos do DOM
+    // Elementos DOM
     const loginScreen = document.getElementById("login-screen");
     const chatScreen = document.getElementById("chat-screen");
     const usernameInput = document.getElementById("username-input");
@@ -538,12 +663,30 @@
     const imgBtn = document.getElementById("img-btn");
     const audioBtn = document.getElementById("audio-btn");
 
-    // Controle de Gravação de Áudio
-    let mediaRecorder = null;
-    let audioChunks = [];
-    let isRecording = false;
+    // Elementos WebRTC
+    const callModal = document.getElementById("call-modal");
+    const callPeerName = document.getElementById("call-peer-name");
+    const callStateText = document.getElementById("call-state-text");
+    const localVideo = document.getElementById("local-video");
+    const remoteVideo = document.getElementById("remote-video");
+    const btnStartAudio = document.getElementById("btn-start-audio-call");
+    const btnStartVideo = document.getElementById("btn-start-video-call");
+    const btnAcceptCall = document.getElementById("btn-accept-call");
+    const btnEndCall = document.getElementById("btn-end-call");
 
-    // Efeito Sonoro de Notificação
+    let peerConnection = null;
+    let localStream = null;
+    let pendingOfferData = null;
+
+    // Servidores STUN públicos e gratuitos para descoberta de IP
+    const rtcConfig = {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" }
+      ]
+    };
+
+    // Sons
     function playPopSound() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -567,14 +710,8 @@
     }
 
     joinBtn.addEventListener("click", joinChat);
-    usernameInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") joinChat();
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("imsg_username");
-      location.reload();
-    });
+    usernameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") joinChat(); });
+    logoutBtn.addEventListener("click", () => { localStorage.removeItem("imsg_username"); location.reload(); });
 
     function joinChat() {
       const val = usernameInput.value.trim();
@@ -593,9 +730,7 @@
       switchChannel(channelSelect.value);
     }
 
-    channelSelect.addEventListener("change", (e) => {
-      switchChannel(e.target.value);
-    });
+    channelSelect.addEventListener("change", (e) => switchChannel(e.target.value));
 
     function switchChannel(channelName) {
       if (activeMessageRef) off(activeMessageRef);
@@ -606,7 +741,6 @@
       listenForTyping();
     }
 
-    // Status On-line
     function setupPresence() {
       const connectedRef = ref(db, ".info/connected");
       const myPresenceRef = ref(db, `presence/${username}`);
@@ -618,7 +752,6 @@
       });
     }
 
-    // Indicador "Digitando..."
     messageInput.addEventListener("input", () => {
       if (!username) return;
       const typingRef = ref(db, `typing/${currentChannel}/${username}`);
@@ -632,16 +765,11 @@
       onValue(typingRef, (snapshot) => {
         const data = snapshot.val() || {};
         const typingUsers = Object.keys(data).filter(u => u !== username && data[u] === true);
-        if (typingUsers.length > 0) {
-          typingIndicator.textContent = `${typingUsers.join(", ")} está digitando...`;
-          typingIndicator.classList.remove("hidden");
-        } else {
-          typingIndicator.classList.add("hidden");
-        }
+        typingIndicator.textContent = typingUsers.length > 0 ? `${typingUsers.join(", ")} está digitando...` : '';
+        typingIndicator.classList.toggle("hidden", typingUsers.length === 0);
       });
     }
 
-    // Enviar Texto
     messageForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const text = messageInput.value.trim();
@@ -652,49 +780,40 @@
       }
     });
 
-    // Enviar Imagem (Base64)
     imgBtn.addEventListener("click", () => fileInput.click());
-
     fileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
-        if (file.size > 2 * 1024 * 1024) {
-          alert("A imagem não pode exceder 2MB.");
-          return;
-        }
+        if (file.size > 2 * 1024 * 1024) return alert("A imagem não pode exceder 2MB.");
         const reader = new FileReader();
-        reader.onload = (evt) => {
-          sendMessage(evt.target.result, false, "image");
-        };
+        reader.onload = (evt) => sendMessage(evt.target.result, false, "image");
         reader.readAsDataURL(file);
       }
     });
 
-    // Gravação e Envio de Áudio
+    // Gravação de Áudio Nativado
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
     audioBtn.addEventListener("click", async () => {
       if (!isRecording) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           mediaRecorder = new MediaRecorder(stream);
           audioChunks = [];
-
           mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
           mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
             const reader = new FileReader();
-            reader.onloadend = () => {
-              sendMessage(reader.result, false, "audio");
-            };
+            reader.onloadend = () => sendMessage(reader.result, false, "audio");
             reader.readAsDataURL(audioBlob);
             stream.getTracks().forEach(t => t.stop());
           };
-
           mediaRecorder.start();
           isRecording = true;
           audioBtn.classList.add("recording");
-        } catch (err) {
-          alert("Não foi possível acessar o microfone.");
-        }
+        } catch (err) { alert("Não foi possível acessar o microfone."); }
       } else {
         mediaRecorder.stop();
         isRecording = false;
@@ -702,14 +821,15 @@
       }
     });
 
-    function sendMessage(content, isSystem = false, type = "text") {
+    function sendMessage(content, isSystem = false, type = "text", extraData = {}) {
       const messagesRef = ref(db, `chat_${currentChannel}`);
       push(messagesRef, {
         user: username,
         text: content,
         type: type,
         isSystem: isSystem,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        ...extraData
       });
     }
 
@@ -719,6 +839,21 @@
 
       onChildAdded(activeMessageRef, (snapshot) => {
         const data = snapshot.val();
+        
+        // Tratamento de mensagens WebRTC (Sinalização IP/IP)
+        if (data.type === "webrtc-offer" && data.user !== username) {
+          handleIncomingCall(data);
+          return;
+        }
+        if (data.type === "webrtc-answer" && data.targetUser === username) {
+          handleCallAnswer(data);
+          return;
+        }
+        if (data.type === "webrtc-candidate" && data.targetUser === username) {
+          handleNewIceCandidate(data);
+          return;
+        }
+
         renderMessage(data);
         if (!isFirstLoad && !data.isSystem && data.user !== username) {
           playPopSound();
@@ -745,11 +880,9 @@
         let authorHtml = !isMe ? `<div class="msg-author">${escapeHtml(data.user)}</div>` : '';
         let bodyContent = "";
 
-        const msgType = data.type || "text";
-
-        if (msgType === "image") {
+        if (data.type === "image") {
           bodyContent = `<img src="${data.text}" class="chat-img" onclick="window.open(this.src)" />`;
-        } else if (msgType === "audio") {
+        } else if (data.type === "audio") {
           bodyContent = `<audio controls src="${data.text}" class="chat-audio"></audio>`;
         } else {
           bodyContent = escapeHtml(data.text);
@@ -760,10 +893,8 @@
           <div class="bubble">${bodyContent}</div>
           <div class="msg-time">${timeStr}</div>
         `;
-
         messagesLog.appendChild(wrapper);
       }
-
       messagesLog.scrollTop = messagesLog.scrollHeight;
     }
 
@@ -771,30 +902,133 @@
       return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
     }
 
-    // Registro do PWA
-    let deferredPrompt;
-    const installBanner = document.getElementById('install-banner');
-    const installBtn = document.getElementById('install-btn');
+    /* ======================================================
+       LÓGICA WEBRTC (CHAMADAS IP PARA IP NATIVAS)
+       ====================================================== */
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBanner.classList.remove('hidden');
-    });
+    btnStartAudio.addEventListener("click", () => startCall(false));
+    btnStartVideo.addEventListener("click", () => startCall(true));
+    btnEndCall.addEventListener("click", endCall);
+    btnAcceptCall.addEventListener("click", acceptCall);
 
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') installBanner.classList.add('hidden');
-        deferredPrompt = null;
+    async function startCall(hasVideo) {
+      try {
+        callModal.classList.remove("hidden");
+        callPeerName.textContent = "Chamada FaceTime";
+        callStateText.textContent = "Iniciando chamada...";
+        btnAcceptCall.classList.add("hidden");
+
+        localStream = await navigator.mediaDevices.getUserMedia({ video: hasVideo, audio: true });
+        localVideo.srcObject = localStream;
+
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        peerConnection.ontrack = (event) => {
+          remoteVideo.srcObject = event.streams[0];
+          callStateText.textContent = "Conectado (IP para IP)";
+        };
+
+        peerConnection.onicecandidate = (event) => {
+          if (event.candidate) {
+            sendMessage("candidate", false, "webrtc-candidate", {
+              candidate: JSON.stringify(event.candidate),
+              targetUser: pendingOfferData ? pendingOfferData.user : "all"
+            });
+          }
+        };
+
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        sendMessage("Chamada Iniciada", false, "webrtc-offer", {
+          sdp: JSON.stringify(offer),
+          hasVideo: hasVideo
+        });
+
+      } catch (err) {
+        alert("Erro ao acessar câmera/microfone: " + err.message);
+        endCall();
       }
-    });
+    }
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.error(err));
-      });
+    function handleIncomingCall(data) {
+      pendingOfferData = data;
+      callModal.classList.remove("hidden");
+      callPeerName.textContent = `${data.user} está ligando...`;
+      callStateText.textContent = data.hasVideo ? "Chamada de Vídeo" : "Chamada de Áudio";
+      btnAcceptCall.classList.remove("hidden");
+    }
+
+    async function acceptCall() {
+      try {
+        btnAcceptCall.classList.add("hidden");
+        callStateText.textContent = "Conectando...";
+
+        const hasVideo = pendingOfferData.hasVideo;
+        localStream = await navigator.mediaDevices.getUserMedia({ video: hasVideo, audio: true });
+        localVideo.srcObject = localStream;
+
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        peerConnection.ontrack = (event) => {
+          remoteVideo.srcObject = event.streams[0];
+          callStateText.textContent = "Conectado (IP para IP)";
+        };
+
+        peerConnection.onicecandidate = (event) => {
+          if (event.candidate) {
+            sendMessage("candidate", false, "webrtc-candidate", {
+              candidate: JSON.stringify(event.candidate),
+              targetUser: pendingOfferData.user
+            });
+          }
+        };
+
+        const offer = JSON.parse(pendingOfferData.sdp);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        sendMessage("Chamada Aceita", false, "webrtc-answer", {
+          sdp: JSON.stringify(answer),
+          targetUser: pendingOfferData.user
+        });
+
+      } catch (err) {
+        alert("Erro ao aceitar chamada: " + err.message);
+        endCall();
+      }
+    }
+
+    async function handleCallAnswer(data) {
+      if (peerConnection) {
+        const answer = JSON.parse(data.sdp);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+      }
+    }
+
+    async function handleNewIceCandidate(data) {
+      if (peerConnection && data.candidate) {
+        const candidate = JSON.parse(data.candidate);
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      }
+    }
+
+    function endCall() {
+      if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+      localVideo.srcObject = null;
+      remoteVideo.srcObject = null;
+      callModal.classList.add("hidden");
     }
   </script>
 </body>

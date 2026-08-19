@@ -3,39 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>iMessage - IMSG</title>
-
-  <!-- Configurações para PWA (Instalação como APP/APK) -->
-  <meta name="theme-color" content="#f2f2f7">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="IMSG">
-
-  <!-- Manifest Dinâmico via Data URL -->
-  <link rel="manifest" href='data:application/manifest+json,{
-    "name": "IMSG - Messages",
-    "short_name": "IMSG",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#007aff",
-    "icons": [
-      {
-        "src": "https://cdn-icons-png.flaticon.com/512/1041/1041916.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      },
-      {
-        "src": "https://cdn-icons-png.flaticon.com/512/1041/1041916.png",
-        "sizes": "512x512",
-        "type": "image/png"
-      }
-    ]
-  }'>
+  <title>iMessage Private Chat</title>
 
   <style>
-    /* Estilo do iOS / System Fonts */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -44,79 +14,32 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
+    body, html {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
       background-color: #f2f2f7;
       color: #000000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      min-height: -webkit-fill-available;
-    }
-
-    html {
-      height: -webkit-fill-available;
     }
 
     #app {
-      width: 100%;
-      height: 100vh;
-      max-width: 100%;
+      width: 100vw;
+      height: 100dvh;
       display: flex;
-      flex-direction: column;
       background: #ffffff;
       position: relative;
       overflow: hidden;
-    }
-
-    /* Adaptação Responsiva para Desktop */
-    @media (min-width: 768px) {
-      body {
-        padding: 20px;
-        background-color: #e5e5ea;
-      }
-      #app {
-        max-width: 900px;
-        height: 85vh;
-        border-radius: 18px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-        border: 1px solid rgba(0, 0, 0, 0.08);
-      }
     }
 
     .hidden {
       display: none !important;
     }
 
-    /* Banner de Instalação (Estilo Notificação iOS) */
-    #install-banner {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid #e5e5ea;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      color: #1c1c1e;
-      z-index: 100;
-    }
-
-    #install-banner button {
-      background: #007aff;
-      color: #ffffff;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 14px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* Tela de Login (Modal iOS) */
+    /* Tela de Login */
     #login-screen {
-      flex: 1;
+      position: absolute;
+      inset: 0;
+      z-index: 500;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -186,15 +109,92 @@
       opacity: 0.7;
     }
 
-    /* Tela do Chat */
+    /* Layout Split Desktop / Mobile */
+    #sidebar {
+      width: 320px;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      z-index: 10;
+    }
+
+    #sidebar-header {
+      padding: 16px;
+      background: rgba(249, 249, 249, 0.94);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #sidebar-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    #users-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-item {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .user-item:hover, .user-item.active {
+      background: #e5e5ea;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #007aff;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .user-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .user-status {
+      font-size: 12px;
+      color: #34c759;
+    }
+
+    /* Área Principal do Chat */
     #chat-screen {
+      flex: 1;
       display: flex;
       flex-direction: column;
       height: 100%;
       background: #ffffff;
+      position: relative;
     }
 
-    /* Header Estilo Navigation Bar iOS */
     #chat-header {
       padding: 12px 16px;
       background: rgba(249, 249, 249, 0.94);
@@ -202,27 +202,64 @@
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 10;
     }
 
-    #chat-header .channel-title {
-      font-size: 15px;
+    .back-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: #007aff;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .header-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    #chat-header .active-user-title {
+      font-size: 16px;
       font-weight: 600;
       color: #000000;
     }
 
-    #chat-header .user-info {
-      font-size: 11px;
-      color: #8e8e93;
-      margin-top: 2px;
+    .call-actions {
+      display: flex;
+      gap: 8px;
     }
 
-    /* Área de Mensagens */
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #007aff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 50%;
+    }
+
+    .icon-btn:active {
+      background: rgba(0, 122, 255, 0.1);
+    }
+
+    .icon-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: #007aff;
+    }
+
+    /* Mensagens */
     #messages-log {
       flex: 1;
       padding: 16px;
@@ -233,7 +270,6 @@
       background: #ffffff;
     }
 
-    /* Estilo das Bolhas (iOS Message Bubbles) */
     .msg-wrapper {
       display: flex;
       flex-direction: column;
@@ -250,13 +286,6 @@
       align-items: flex-start;
     }
 
-    .msg-author {
-      font-size: 11px;
-      color: #8e8e93;
-      margin-bottom: 3px;
-      margin-left: 12px;
-    }
-
     .bubble {
       padding: 10px 16px;
       border-radius: 18px;
@@ -266,18 +295,34 @@
       position: relative;
     }
 
-    /* Balão enviado pelo usuário (Azul iOS) */
     .msg-wrapper.me .bubble {
       background: #007aff;
       color: #ffffff;
       border-bottom-right-radius: 4px;
     }
 
-    /* Balão recebido (Cinza iOS) */
     .msg-wrapper.other .bubble {
       background: #e9e9eb;
       color: #000000;
       border-bottom-left-radius: 4px;
+    }
+
+    .bubble img {
+      max-width: 100%;
+      border-radius: 12px;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .bubble audio {
+      max-width: 100%;
+      margin-top: 4px;
+    }
+
+    .bubble a {
+      color: inherit;
+      text-decoration: underline;
+      font-weight: 500;
     }
 
     .msg-time {
@@ -287,16 +332,7 @@
       padding: 0 4px;
     }
 
-    /* Mensagem do Sistema */
-    .msg-system {
-      align-self: center;
-      font-size: 12px;
-      color: #8e8e93;
-      margin: 8px 0;
-      font-weight: 500;
-    }
-
-    /* Campo de Entrada (Input Bar iOS) */
+    /* Barra de Envio */
     #message-form {
       padding: 8px 12px;
       background: rgba(249, 249, 249, 0.94);
@@ -323,7 +359,7 @@
       border-color: #007aff;
     }
 
-    #message-form button {
+    #message-form button[type="submit"], #record-btn {
       background: #007aff;
       color: #ffffff;
       border: none;
@@ -337,27 +373,172 @@
       transition: transform 0.1s, opacity 0.2s;
     }
 
-    #message-form button:active {
-      transform: scale(0.92);
-      opacity: 0.8;
+    #record-btn.recording {
+      background: #ff3b30;
+      animation: pulse 1s infinite;
     }
 
-    #message-form button svg {
-      width: 18px;
-      height: 18px;
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* Modal de Câmera Direta */
+    #camera-modal {
+      position: absolute;
+      inset: 0;
+      background: #000000;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #camera-view {
+      width: 100%;
+      max-width: 500px;
+      height: 70%;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+
+    .camera-controls {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .capture-btn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 4px solid #ffffff;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .capture-btn::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .close-camera-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* Overlay Chamada de Vídeo/Voz */
+    #call-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000000;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .video-container {
+      position: relative;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #remote-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    #local-video {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 100px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #ffffff;
+    }
+
+    .call-controls {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      padding: 20px 0;
+    }
+
+    .call-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .call-btn.end {
+      background: #ff3b30;
+    }
+
+    .call-btn svg {
+      width: 28px;
+      height: 28px;
       fill: #ffffff;
+    }
+
+    /* Estado Inicial sem Conversa Selecionada */
+    #empty-state {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #8e8e93;
+      font-size: 16px;
+    }
+
+    /* Adaptação Responsiva para Mobile */
+    @media (max-width: 767px) {
+      #sidebar {
+        width: 100%;
+      }
+      #chat-screen {
+        display: none;
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+      }
+      #chat-screen.active {
+        display: flex;
+      }
+      .back-btn {
+        display: block;
+      }
     }
   </style>
 </head>
 <body>
 
   <div id="app">
-    <!-- Banner de Instalação PWA -->
-    <div id="install-banner" class="hidden">
-      <span>Instalar o IMSG no seu dispositivo?</span>
-      <button id="install-btn">Instalar</button>
-    </div>
-
     <!-- Tela de Login -->
     <div id="login-screen">
       <div class="login-card">
@@ -366,34 +547,108 @@
             <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
           </svg>
         </div>
-        <h2>IMSG Messages</h2>
+        <h2>iMessage Private</h2>
         <input type="text" id="username-input" placeholder="Seu Nome / Apelido" maxlength="15" autocomplete="off">
         <button id="join-btn">Entrar</button>
       </div>
     </div>
 
-    <!-- Tela do Chat -->
-    <div id="chat-screen" class="hidden">
-      <div id="chat-header">
-        <span class="channel-title">#geral</span>
-        <span class="user-info" id="user-display"></span>
+    <!-- Painel Lateral (Usuários) -->
+    <div id="sidebar">
+      <div id="sidebar-header">
+        <h3>Mensagens</h3>
+        <span id="my-user-display" style="font-size: 12px; color: #8e8e93;"></span>
       </div>
-      <div id="messages-log"></div>
-      <form id="message-form">
-        <input type="text" id="message-input" placeholder="iMessage" autocomplete="off">
-        <button type="submit">
+      <div id="users-list"></div>
+    </div>
+
+    <!-- Tela do Chat Direto -->
+    <div id="chat-screen">
+      <div id="empty-state">Selecione um usuário para conversar</div>
+
+      <div id="chat-container" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+        <div id="chat-header">
+          <button class="back-btn" id="back-btn">‹ Voltar</button>
+          <div class="header-info">
+            <span class="active-user-title" id="active-user-title">...</span>
+          </div>
+          <div class="call-actions">
+            <button class="icon-btn" id="audio-call-btn" title="Chamada de Voz">
+              <svg viewBox="0 0 24 24">
+                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+              </svg>
+            </button>
+            <button class="icon-btn" id="video-call-btn" title="Chamada de Vídeo">
+              <svg viewBox="0 0 24 24">
+                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="messages-log"></div>
+
+        <form id="message-form">
+          <input type="file" id="file-input" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt">
+
+          <button type="button" class="icon-btn" id="attach-btn" title="Enviar Galeria/Documentos">
+            <svg viewBox="0 0 24 24">
+              <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4s-4 1.79-4 4v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
+            </svg>
+          </button>
+
+          <button type="button" class="icon-btn" id="open-camera-btn" title="Abrir Câmera">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 12m-3.2 0a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>
+            </svg>
+          </button>
+
+          <input type="text" id="message-input" placeholder="iMessage" autocomplete="off">
+
+          <button type="button" id="record-btn" title="Gravar Áudio">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/>
+            </svg>
+          </button>
+
+          <button type="submit" id="send-btn" class="hidden">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Câmera Directa -->
+    <div id="camera-modal" class="hidden">
+      <video id="camera-view" autoplay playsinline></video>
+      <canvas id="camera-canvas" class="hidden"></canvas>
+      <div class="camera-controls">
+        <button class="close-camera-btn" id="close-camera-btn">Cancelar</button>
+        <button class="capture-btn" id="capture-btn"></button>
+      </div>
+    </div>
+
+    <!-- Overlay da Chamada -->
+    <div id="call-overlay" class="hidden">
+      <div class="video-container">
+        <video id="remote-video" autoplay playsinline></video>
+        <video id="local-video" autoplay playsinline muted></video>
+      </div>
+      <div class="call-controls">
+        <button class="call-btn end" id="end-call-btn">
           <svg viewBox="0 0 24 24">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
           </svg>
         </button>
-      </form>
+      </div>
     </div>
   </div>
 
-  <!-- Firebase SDKs e Lógica do App -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, serverTimestamp, set, onValue, remove, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBGFNnKz5_SvfhZb7_mgLTahZ4-yKq3nKs",
@@ -409,127 +664,368 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let username = "";
+    let myUsername = "";
+    let targetUsername = "";
+    let currentChatKey = "";
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let localStream = null;
+    let cameraStream = null;
+    let peerConnection = null;
 
+    const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
+    // Elementos DOM
     const loginScreen = document.getElementById("login-screen");
-    const chatScreen = document.getElementById("chat-screen");
     const usernameInput = document.getElementById("username-input");
     const joinBtn = document.getElementById("join-btn");
-    const userDisplay = document.getElementById("user-display");
+    const myUserDisplay = document.getElementById("my-user-display");
+    const usersList = document.getElementById("users-list");
+    const chatScreen = document.getElementById("chat-screen");
+    const emptyState = document.getElementById("empty-state");
+    const chatContainer = document.getElementById("chat-container");
+    const activeUserTitle = document.getElementById("active-user-title");
     const messagesLog = document.getElementById("messages-log");
     const messageForm = document.getElementById("message-form");
     const messageInput = document.getElementById("message-input");
+    const sendBtn = document.getElementById("send-btn");
+    const recordBtn = document.getElementById("record-btn");
+    const attachBtn = document.getElementById("attach-btn");
+    const fileInput = document.getElementById("file-input");
+    const backBtn = document.getElementById("back-btn");
+
+    // Elementos Câmera
+    const openCameraBtn = document.getElementById("open-camera-btn");
+    const cameraModal = document.getElementById("camera-modal");
+    const cameraView = document.getElementById("camera-view");
+    const cameraCanvas = document.getElementById("camera-canvas");
+    const captureBtn = document.getElementById("capture-btn");
+    const closeCameraBtn = document.getElementById("close-camera-btn");
+
+    // Elementos Chamada
+    const audioCallBtn = document.getElementById("audio-call-btn");
+    const videoCallBtn = document.getElementById("video-call-btn");
+    const callOverlay = document.getElementById("call-overlay");
+    const endCallBtn = document.getElementById("end-call-btn");
+    const localVideo = document.getElementById("local-video");
+    const remoteVideo = document.getElementById("remote-video");
 
     joinBtn.addEventListener("click", joinChat);
-    usernameInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") joinChat();
-    });
+    usernameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") joinChat(); });
 
     function joinChat() {
-      const val = usernameInput.value.trim();
+      const val = usernameInput.value.trim().toLowerCase();
       if (val) {
-        username = val;
-        userDisplay.textContent = `Conectado como ${username}`;
+        myUsername = val;
+        myUserDisplay.textContent = `@${myUsername}`;
         loginScreen.classList.add("hidden");
-        chatScreen.classList.remove("hidden");
+
+        // Registrar presença do usuário
+        set(ref(db, `users/${myUsername}`), { status: "online", lastSeen: serverTimestamp() });
         
-        sendMessage("entrou na conversa.", true);
-        listenForMessages();
+        loadUsersList();
+        listenForIncomingCalls();
       }
     }
+
+    function loadUsersList() {
+      onValue(ref(db, "users"), (snapshot) => {
+        usersList.innerHTML = "";
+        const data = snapshot.val() || {};
+        Object.keys(data).forEach((u) => {
+          if (u !== myUsername) {
+            const item = document.createElement("div");
+            item.classList.add("user-item");
+            if (u === targetUsername) item.classList.add("active");
+            
+            item.innerHTML = `
+              <div class="user-avatar">${u.charAt(0).toUpperCase()}</div>
+              <div class="user-details">
+                <span class="user-name">${u}</span>
+                <span class="user-status">online</span>
+              </div>
+            `;
+            item.addEventListener("click", () => selectUser(u));
+            usersList.appendChild(item);
+          }
+        });
+      });
+    }
+
+    function selectUser(user) {
+      targetUsername = user;
+      activeUserTitle.textContent = targetUsername;
+      
+      // Gerar Chave Única de Chat Privado
+      currentChatKey = [myUsername, targetUsername].sort().join("_");
+
+      emptyState.classList.add("hidden");
+      chatContainer.classList.remove("hidden");
+      chatScreen.classList.add("active");
+
+      messagesLog.innerHTML = "";
+      listenForMessages();
+    }
+
+    backBtn.addEventListener("click", () => {
+      chatScreen.classList.remove("active");
+    });
+
+    // Envio de Texto
+    messageInput.addEventListener("input", () => {
+      if (messageInput.value.trim().length > 0) {
+        sendBtn.classList.remove("hidden");
+        recordBtn.classList.add("hidden");
+      } else {
+        sendBtn.classList.add("hidden");
+        recordBtn.classList.remove("hidden");
+      }
+    });
 
     messageForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const text = messageInput.value.trim();
-      if (text) {
-        sendMessage(text, false);
+      if (text && currentChatKey) {
+        sendMessage(text, "text");
         messageInput.value = "";
+        sendBtn.classList.add("hidden");
+        recordBtn.classList.remove("hidden");
       }
     });
 
-    function sendMessage(text, isSystem = false) {
-      const messagesRef = ref(db, "chat_geral");
-      push(messagesRef, {
-        user: username,
-        text: text,
-        isSystem: isSystem,
+    // Anexar Documentos/Galeria
+    attachBtn.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file || !currentChatKey) return;
+      
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const isImg = file.type.startsWith("image/");
+        sendMessage({
+          name: file.name,
+          data: evt.target.result
+        }, isImg ? "image" : "document");
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Câmera Direta via Modal
+    openCameraBtn.addEventListener("click", async () => {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false
+        });
+        cameraView.srcObject = cameraStream;
+        cameraModal.classList.remove("hidden");
+      } catch (err) {
+        alert("Erro ao acessar a câmera. Verifique as permissões.");
+      }
+    });
+
+    closeCameraBtn.addEventListener("click", closeCamera);
+
+    function closeCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+      }
+      cameraModal.classList.add("hidden");
+    }
+
+    captureBtn.addEventListener("click", () => {
+      if (!cameraStream || !currentChatKey) return;
+      const ctx = cameraCanvas.getContext("2d");
+      cameraCanvas.width = cameraView.videoWidth;
+      cameraCanvas.height = cameraView.videoHeight;
+      ctx.drawImage(cameraView, 0, 0);
+
+      const base64Image = cameraCanvas.toDataURL("image/jpeg");
+      sendMessage({ name: "camera.jpg", data: base64Image }, "image");
+      closeCamera();
+    });
+
+    // Gravador de Áudio
+    recordBtn.addEventListener("click", async () => {
+      if (!mediaRecorder || mediaRecorder.state === "inactive") {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onload = (evt) => sendMessage(evt.target.result, "audio");
+            reader.readAsDataURL(audioBlob);
+            stream.getTracks().forEach(t => t.stop());
+          };
+
+          mediaRecorder.start();
+          recordBtn.classList.add("recording");
+        } catch (err) {
+          alert("Acesso ao microfone negado.");
+        }
+      } else if (mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        recordBtn.classList.remove("recording");
+      }
+    });
+
+    function sendMessage(content, type = "text") {
+      if (!currentChatKey) return;
+      const chatRef = ref(db, `chats/${currentChatKey}`);
+      push(chatRef, {
+        sender: myUsername,
+        content: content,
+        type: type,
         timestamp: serverTimestamp()
       });
     }
 
     function listenForMessages() {
-      const messagesRef = ref(db, "chat_geral");
-      
-      onChildAdded(messagesRef, (snapshot) => {
-        const data = snapshot.val();
-        renderMessage(data);
+      const chatRef = ref(db, `chats/${currentChatKey}`);
+      off(chatRef);
+      onChildAdded(chatRef, (snapshot) => {
+        renderMessage(snapshot.val());
       });
     }
 
     function renderMessage(data) {
+      const isMe = data.sender === myUsername;
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("msg-wrapper", isMe ? "me" : "other");
+
+      let contentHtml = '';
+      if (data.type === "text") {
+        contentHtml = escapeHtml(data.content);
+      } else if (data.type === "image") {
+        contentHtml = `<img src="${data.content.data}" alt="Foto" />`;
+      } else if (data.type === "audio") {
+        contentHtml = `<audio controls src="${data.content}"></audio>`;
+      } else if (data.type === "document") {
+        contentHtml = `📄 <a href="${data.content.data}" download="${data.content.name}">${escapeHtml(data.content.name)}</a>`;
+      }
+
       const date = data.timestamp ? new Date(data.timestamp) : new Date();
       const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      if (data.isSystem) {
-        const sysDiv = document.createElement("div");
-        sysDiv.classList.add("msg-system");
-        sysDiv.textContent = `${data.user} ${data.text}`;
-        messagesLog.appendChild(sysDiv);
-      } else {
-        const isMe = data.user === username;
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("msg-wrapper", isMe ? "me" : "other");
+      wrapper.innerHTML = `
+        <div class="bubble">${contentHtml}</div>
+        <div class="msg-time">${timeStr}</div>
+      `;
 
-        let authorHtml = !isMe ? `<div class="msg-author">${escapeHtml(data.user)}</div>` : '';
-
-        wrapper.innerHTML = `
-          ${authorHtml}
-          <div class="bubble">${escapeHtml(data.text)}</div>
-          <div class="msg-time">${timeStr}</div>
-        `;
-
-        messagesLog.appendChild(wrapper);
-      }
-
+      messagesLog.appendChild(wrapper);
       messagesLog.scrollTop = messagesLog.scrollHeight;
     }
 
     function escapeHtml(str) {
-      return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+      return typeof str === 'string' ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
     }
 
-    // REGISTRO DE SERVICE WORKER & PWA
-    let deferredPrompt;
-    const installBanner = document.getElementById('install-banner');
-    const installBtn = document.getElementById('install-btn');
+    // WEBRTC - Chamada Individual
+    audioCallBtn.addEventListener("click", () => startCall(false));
+    videoCallBtn.addEventListener("click", () => startCall(true));
+    endCallBtn.addEventListener("click", endCall);
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBanner.classList.remove('hidden');
-    });
+    async function startCall(isVideo) {
+      if (!targetUsername) return;
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: isVideo, audio: true });
+        localVideo.srcObject = localStream;
+        localVideo.style.display = isVideo ? "block" : "none";
+        callOverlay.classList.remove("hidden");
 
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          installBanner.classList.add('hidden');
-        }
-        deferredPrompt = null;
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        peerConnection.ontrack = (e) => remoteVideo.srcObject = e.streams[0];
+
+        const callId = `${myUsername}_${targetUsername}`;
+        const callRef = ref(db, `calls/${callId}`);
+
+        peerConnection.onicecandidate = (e) => {
+          if (e.candidate) push(ref(db, `calls/${callId}/callerCandidates`), e.candidate.toJSON());
+        };
+
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        await set(callRef, {
+          caller: myUsername,
+          receiver: targetUsername,
+          isVideo: isVideo,
+          offer: { type: offer.type, sdp: offer.sdp }
+        });
+
+      } catch (err) {
+        alert("Erro ao iniciar chamada.");
+        endCall();
       }
-    });
+    }
 
-    if ('serviceWorker' in navigator) {
-      const swCode = `
-        self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-        self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-        self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-      `;
-      const blob = new Blob([swCode], { type: 'text/javascript' });
-      const swUrl = URL.createObjectURL(blob);
-      
-      navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Erro:', err));
+    function listenForIncomingCalls() {
+      onValue(ref(db, "calls"), async (snapshot) => {
+        const calls = snapshot.val() || {};
+        Object.keys(calls).forEach(async (callId) => {
+          const call = calls[callId];
+          if (call.receiver === myUsername && !peerConnection && call.offer) {
+            const accept = confirm(`Chamada de ${call.isVideo ? 'vídeo' : 'voz'} de @${call.caller}. Aceitar?`);
+            if (accept) {
+              localStream = await navigator.mediaDevices.getUserMedia({ video: call.isVideo, audio: true });
+              localVideo.srcObject = localStream;
+              localVideo.style.display = call.isVideo ? "block" : "none";
+              callOverlay.classList.remove("hidden");
+
+              peerConnection = new RTCPeerConnection(rtcConfig);
+              localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+              peerConnection.ontrack = (e) => remoteVideo.srcObject = e.streams[0];
+
+              peerConnection.onicecandidate = (e) => {
+                if (e.candidate) push(ref(db, `calls/${callId}/receiverCandidates`), e.candidate.toJSON());
+              };
+
+              await peerConnection.setRemoteDescription(new RTCSessionDescription(call.offer));
+              const answer = await peerConnection.createAnswer();
+              await peerConnection.setLocalDescription(answer);
+
+              set(ref(db, `calls/${callId}/answer`), { type: answer.type, sdp: answer.sdp });
+
+              onChildAdded(ref(db, `calls/${callId}/callerCandidates`), (snap) => {
+                peerConnection.addIceCandidate(new RTCIceCandidate(snap.val()));
+              });
+            } else {
+              remove(ref(db, `calls/${callId}`));
+            }
+          }
+
+          if (call.caller === myUsername && call.answer && peerConnection && !peerConnection.remoteDescription) {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(call.answer));
+            onChildAdded(ref(db, `calls/${callId}/receiverCandidates`), (snap) => {
+              peerConnection.addIceCandidate(new RTCIceCandidate(snap.val()));
+            });
+          }
+        });
+      });
+    }
+
+    function endCall() {
+      if (myUsername && targetUsername) {
+        remove(ref(db, `calls/${myUsername}_${targetUsername}`));
+        remove(ref(db, `calls/${targetUsername}_${myUsername}`));
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+      if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+      }
+      callOverlay.classList.add("hidden");
     }
   </script>
 </body>
